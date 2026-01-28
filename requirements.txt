@@ -1,0 +1,16 @@
+ipykernel
+langchain
+python-dotenv
+pydantic
+
+pypdf
+# WebBaseLoader
+beautifulsoup4 
+requests 
+lxml
+arxiv
+pymupdf
+wikipedia
+langchain-community
+langchain-core
+langchain-text-splitters

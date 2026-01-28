@@ -1,0 +1,625 @@
+###############################################################
+Docker --- containarization tool (to deploy the application)
+
+
+
+
+Before running appplication  must specifies dependencies --> 
+																								CPU-4
+																								RAM-16GB
+																								HDD-100GB
+								using resources well 
+								
+								totally we have  HDD 500GB --- divide among the 4 application
+															
+								
+								containers 1 				                             CPU-4
+																								RAM-16GB
+																								HDD-100GB
+																								
+								containers 2 											CPU-4
+																								RAM-16GB
+																								HDD-100GB
+																								
+								containers 3											CPU-4
+																								RAM-16GB
+																								HDD-100GB
+								
+								to run 10 applications we requires 10 physical servers but using containarization we can efficiently use the physical VMs (host machine)
+								manages project cost low 
+								
+								
+1. Container Management
+
+			Life Cycle of the Container
+			
+				1. #docker run <containerName> <Docker-Image>
+			1. Docker Doemon : --> checks and throws errors
+							   --> responsible for creating all the stuff of the container
+			once exicuted by default it have:
+				1.Image checks in docker registery
+				2.creates a Container
+				3.unique id
+				4.Name:
+				5.Start application
+				6.Script/Process
+			
+			Note: Until unless your process is running/alive in the container 
+				  then the container is also alive
+				
+				
+				
+	1. how to remove a container ? 
+	Note:  we cant delete the running container
+		# docker rm <containerName / id >
+		
+	2.how to remove multiple containers ?
+		#docker rm $(docker ps -aq)
+		
+	3. to run the container in backend / detached mode 
+	   cmd:	#docker run -d --name sktech ubuntu
+	   
+	 # forcefully stoping the container
+		docker stop <container - name >
+		$
+		
+		docker ps --> only shows the running containers 
+		docker ps -a --> shows all exited /up / created containers
+		
+		try this : 
+			 docker run --name sktech ubuntu /bin/bash -c "while true; do echo 'hello students'; sleep 3; done"
+
+- docker Network :
+-------------------
+			#docker run -d --name sktech jenkins:2.60.3
+		by default jenkins are accesed from the port 8080 
+		
+		container port = 8080
+		machine port = ? 
+		
+	???	mapping port require in order to acces from outside ???
+	
+	''-p hostport: contport ''
+
+	cmd : $ docker run -d --name sktechjn -p 8080:8080  jenkins:2.60.3 $
+	
+	http://host-serverIP:hostport
+	Note : you should open and enable the hostport from SG
+	
+	password from the container to access jerkin dashboard
+	 to get into the container --> 	#docker exec -it <Container> /bin/bash
+	 
+	 
+	to get password 	---> "/var/jenkins_home/secrets/initialAdminPassword "
+			
+			
+command prompt snap :
+
+		C:\Users\KUMAR G\Downloads>ssh -i admin-kumar.pem ec2-user@13.233.144.3
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Last login: Sat Jan 24 06:45:08 2026 from 157.50.84.92
+[ec2-user@ip-172-31-8-71 ~]$ sudo su -
+Last login: Sat Jan 24 06:45:20 UTC 2026 on pts/14
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS          PORTS                 NAMES
+e9f3437fdd57   jenkins:2.60.3   "/bin/tini -- /usr/l…"   15 minutes ago   Up 15 minutes   8080/tcp, 50000/tcp   sktech
+[root@ip-172-31-8-71 ~]# docker stop sktech
+sktech
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS                        PORTS     NAMES
+e9f3437fdd57   jenkins:2.60.3   "/bin/tini -- /usr/l…"   15 minutes ago   Exited (143) 10 seconds ago             sktech
+[root@ip-172-31-8-71 ~]# docker rmi jenkins:2.60.3
+Error response from daemon: conflict: unable to remove repository reference "jenkins:2.60.3" (must force) - container e9f3437fdd57 is using its referenced image cd14cecfdb3a
+[root@ip-172-31-8-71 ~]# docker rm $(docker ps -aq)
+e9f3437fdd57
+[root@ip-172-31-8-71 ~]# docker rmi jenkins:2.60.3
+Untagged: jenkins:2.60.3
+Untagged: jenkins@sha256:eeb4850eb65f2d92500e421b430ed1ec58a7ac909e91f518926e02473904f668
+Deleted: sha256:cd14cecfdb3a657ba7d05bea026e7ac8b9abafc6e5c66253ab327c7211fa6281
+Deleted: sha256:9047d4817dd4203ae4d456888aa5355bc526d274713d6f168359ba61b85b6c00
+Deleted: sha256:b6eeb6c0e550e93a8b6293a35b2a68931a2af1d21cf8fe8c53bd412359433fdc
+Deleted: sha256:54a9d685504efad152c1032f37f76ee95bae30607f68bd0ff48a095ebec5d820
+Deleted: sha256:0b5e1c633ad7fa60f5185ff00ccbff9af3608ba336dc7c01868f9cd0dd8a7137
+Deleted: sha256:0373335894092868f06432433f14881bd6f09d851931d6e5090601a64e0466f3
+Deleted: sha256:b4e8f84d7b87e7994e49a190bc35871b23f76d9cab573308fa1ae7401c50dcc6
+Deleted: sha256:cde912e85b12d50e9e4d056ad3c8cb35853c60291dbe4b319dcd80bcd2ef243c
+Deleted: sha256:8062b94ccb384de40b6777515f21b895be64218c5296bac3ee6db2ed4c5db9fe
+Deleted: sha256:a3411e0c109af31befac78bcbd2aba26f893717f645df8d4828bf29772417bc0
+Deleted: sha256:fb1cc4fe4174cb86f9614cf9ee4c6cecad4c7f0c04ca52c95fd1a7d0d79471e8
+Deleted: sha256:1fe73f13106502d5c58cc444a71738c518b341fd667fc26058f3e473a3cc559f
+Deleted: sha256:d3898f75e7b8a2a7e45bfdd351a00c4ad95b743861860635d702378fd073771d
+Deleted: sha256:46ddeaf1e1efd81fd6cad11c44af4e4ba71cbab32b75f60f8647f025a8874315
+Deleted: sha256:4e9ac8670c1ea60c504c1dc22e38a177afd782a48e17e81e06ecf60a1c8f4ef0
+Deleted: sha256:76dc20911db5ba40907269c70aa4ef7caf207ea4aa23818b8db2ff83ba74e1e4
+Deleted: sha256:b4ff564f2a75c2bc85c8eda2928ec73b13809416658f949d2b55fa24448c08b1
+Deleted: sha256:2d9c829ae3f7ff3e148e5c7c3a1cf378b0f90b79035e2fe9a8d78c63ccde4c89
+Deleted: sha256:b1ae7168c6f3e061aa3943740ec3ceaf8e582dc65feab31d2b56d464a5062d59
+Deleted: sha256:4a495dbc04bd205c728297a08cf203988e91caeafe4b21fcad94c893a53d96dc
+Deleted: sha256:3b10514a95bec77489a57d6e2fbfddb7ddfdb643907470ce5de0f1b05c603706
+[root@ip-172-31-8-71 ~]# docker run -d --name sktechjn -p 8080 :8080  jenkins:2.60.3
+docker: invalid reference format.
+See 'docker run --help'.
+[root@ip-172-31-8-71 ~]# docker run -d --name sktechjn -p 8080:8080  jenkins:2.60.3
+Unable to find image 'jenkins:2.60.3' locally
+2.60.3: Pulling from library/jenkins
+55cbf04beb70: Pull complete
+1607093a898c: Pull complete
+9a8ea045c926: Pull complete
+d4eee24d4dac: Pull complete
+c58988e753d7: Pull complete
+794a04897db9: Pull complete
+70fcfa476f73: Pull complete
+0539c80a02be: Pull complete
+54fefc6dcf80: Pull complete
+911bc90e47a8: Pull complete
+38430d93efed: Pull complete
+7e46ccda148a: Pull complete
+c0cbcb5ac747: Pull complete
+35ade7a86a8e: Pull complete
+aa433a6a56b1: Pull complete
+841c1dd38d62: Pull complete
+b865dcb08714: Pull complete
+5a3779030005: Pull complete
+12b47c68955c: Pull complete
+1322ea3e7bfd: Pull complete
+Digest: sha256:eeb4850eb65f2d92500e421b430ed1ec58a7ac909e91f518926e02473904f668
+Status: Downloaded newer image for jenkins:2.60.3
+030780267f3a8bd8494d6dbf426c0029925c4e74526949350c99d3bd11536a09
+[root@ip-172-31-8-71 ~]# client_loop: send disconnect: Connection reset
+
+C:\Users\KUMAR G\Downloads>ssh -i admin-kumar.pem ec2-user@13.233.144.3
+
+A newer release of "Amazon Linux" is available.
+  Version 2023.10.20260120:
+  Version 2023.10.20260120:
+Run "/usr/bin/dnf check-release-update" for full release and version update info
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Last login: Sat Jan 24 07:08:52 2026 from 157.50.84.92
+[ec2-user@ip-172-31-8-71 ~]$ sudo su -
+Last login: Sat Jan 24 07:08:59 UTC 2026 on pts/16
+Last failed login: Sat Jan 24 15:36:45 UTC 2026 from 167.71.72.71 on ssh:notty
+There were 6 failed login attempts since the last successful login.
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE            COMMAND                  CREATED       STATUS       PORTS                                                  NAMES
+030780267f3a   jenkins:2.60.3   "/bin/tini -- /usr/l…"   9 hours ago   Up 9 hours   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 50000/tcp   sktechjn
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED       STATUS       PORTS                                                  NAMES
+030780267f3a   jenkins:2.60.3   "/bin/tini -- /usr/l…"   9 hours ago   Up 9 hours   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 50000/tcp   sktechjn
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]# docker exec -it sktechjn /bin/bash
+jenkins@030780267f3a:/$ cat /var/jenkins_home/secrets/init
+cat: /var/jenkins_home/secrets/init: No such file or directory
+jenkins@030780267f3a:/$ /var/jenkins_home/secrets/initialAdminPassword
+bash: /var/jenkins_home/secrets/initialAdminPassword: Permission denied
+jenkins@030780267f3a:/$
+jenkins@030780267f3a:/$ cat /var/jenkins_home/secrets/initialAdminPassword
+d79fb2a894fa4c22a55a4a2714a4ca54
+jenkins@030780267f3a:/$ [root@ip-172-31-8-71 ~]# exit
+logout
+[ec2-user@ip-172-31-8-71 ~]$ docker exec -it sktechjn /bin/bash
+permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.44/containers/sktechjn/json": dial unix /var/run/docker.sock: connect: permission denied
+[ec2-user@ip-172-31-8-71 ~]$ docker ps -a
+permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.44/containers/json?all=1": dial unix /var/run/docker.sock: connect: permission denied
+[ec2-user@ip-172-31-8-71 ~]$ sudo su -
+Last login: Sat Jan 24 16:38:38 UTC 2026 on pts/3
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE            COMMAND                  CREATED              STATUS              PORTS                                                  NAMES
+dbdda7321e5c   jenkins:2.60.3   "/bin/tini -- /usr/l…"   About a minute ago   Up About a minute   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 50000/tcp   sktechjn
+[root@ip-172-31-8-71 ~]# docker exec -it sktechjn /bin/bash
+jenkins@dbdda7321e5c:/$ cat /var/jenkins_home/secrets/initialAdminPassword
+5ef33e53f0054e59baa4fde061174e6b
+jenkins@dbdda7321e5c:/$
+jenkins@dbdda7321e5c:/$ cd
+jenkins@dbdda7321e5c:~$ free -m
+              total        used        free      shared  buff/cache   available
+Mem:            916         456          68           0         391         309
+Swap:             0           0           0
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$ lscpu
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                2
+On-line CPU(s) list:   0,1
+Thread(s) per core:    2
+Core(s) per socket:    1
+Socket(s):             1
+NUMA node(s):          1
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 85
+Model name:            Intel(R) Xeon(R) Platinum 8259CL CPU @ 2.50GHz
+Stepping:              7
+CPU MHz:               2499.998
+BogoMIPS:              4999.99
+Hypervisor vendor:     KVM
+Virtualization type:   full
+L1d cache:             32K
+L1i cache:             32K
+L2 cache:              1024K
+L3 cache:              36608K
+NUMA node0 CPU(s):     0,1
+Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault invpcid_single pti fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves ida arat pku ospke
+jenkins@dbdda7321e5c:~$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+overlay         8.0G  3.0G  5.0G  38% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/nvme0n1p1  8.0G  3.0G  5.0G  38% /var/jenkins_home
+tmpfs           459M     0  459M   0% /proc/acpi
+tmpfs           459M     0  459M   0% /sys/firmware
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$ ps
+    PID TTY          TIME CMD
+     80 pts/0    00:00:00 bash
+     97 pts/0    00:00:00 ps
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$ ps -ef
+UID          PID    PPID  C STIME TTY          TIME CMD
+jenkins        1       0  0 16:42 ?        00:00:00 /bin/tini -- /usr/local/bin/jenkins.sh
+jenkins        6       1  2 16:42 ?        00:00:15 java -jar /usr/share/jenkins/jenkins.war
+jenkins       80       0  0 16:44 pts/0    00:00:00 /bin/bash
+jenkins       98      80  0 16:50 pts/0    00:00:00 ps -ef
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$
+jenkins@dbdda7321e5c:~$ exit
+exit
+[root@ip-172-31-8-71 ~]#
+
+3. Orchestration
+
+
+
+--------------------------------------------------------------------------------------------------
+login as: ec2-user
+ec2-user@13.233.144.3's password:
+Access denied
+ec2-user@13.233.144.3's password:
+Access denied
+ec2-user@13.233.144.3's password:
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Last failed login: Sat Jan 24 06:26:39 UTC 2026 from 157.50.84.92 on ssh:notty
+There were 2 failed login attempts since the last successful login.
+Last login: Sat Jan 24 06:18:22 2026 from 157.50.84.92
+[ec2-user@ip-172-31-8-71 ~]$ passwd ec2-user
+passwd: Only root can specify a user name.
+[ec2-user@ip-172-31-8-71 ~]$ ec2123
+-bash: ec2123: command not found
+[ec2-user@ip-172-31-8-71 ~]$ ec2123
+-bash: ec2123: command not found
+[ec2-user@ip-172-31-8-71 ~]$ passwd ec2-user
+passwd: Only root can specify a user name.
+[ec2-user@ip-172-31-8-71 ~]$ sudo su -
+Last login: Sat Jan 24 06:18:28 UTC 2026 on pts/7
+Last failed login: Sat Jan 24 06:25:58 UTC 2026 from 157.50.84.92 on ssh:notty
+There was 1 failed login attempt since the last successful login.
+[root@ip-172-31-8-71 ~]# passwd ec2-user
+Changing password for user ec2-user.
+New password:
+BAD PASSWORD: The password is shorter than 8 characters
+Retype new password:
+passwd: all authentication tokens updated successfully.
+[root@ip-172-31-8-71 ~]# su ec2-user
+[ec2-user@ip-172-31-8-71 root]$ su - ec2-user
+Password:
+Last login: Sat Jan 24 06:28:38 UTC 2026 on pts/9
+[ec2-user@ip-172-31-8-71 ~]$ sudo su -
+Last login: Sat Jan 24 06:28:08 UTC 2026 on pts/9
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS                                                                                                 PORTS     NAMES
+7b08518cecdf   ubuntu    "/bin/bash -c 'while…"   3 minutes ago   Up 3 minutes                                                                                                     sktech
+[root@ip-172-31-8-71 ~]# docker stop sktech
+
+sktech
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                                                                                                                PORTS     NAMES
+7b08518cecdf   ubuntu         "/bin/bash -c 'while…"   4 minutes ago    Exited (                                                                                        137) 11 seconds ago             sktech
+9ed34a70be60   ubuntu         "echo 'this is ubunt…"   20 minutes ago   Exited (                                                                                        0) 20 minutes ago               sk
+da2668240b33   ubuntu:22.04   "/bin/bash"              41 minutes ago   Exited (                                                                                        0) 41 minutes ago               pensive_pare
+87286b7a9f1e   ubuntu         "/bin/bash"              42 minutes ago   Exited (                                                                                        0) 42 minutes ago               vigorous_morse
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                        PORTS     NAMES
+7b08518cecdf   ubuntu         "/bin/bash -c 'while…"   5 minutes ago    Exited (137) 38 seconds ago             sktech
+9ed34a70be60   ubuntu         "echo 'this is ubunt…"   20 minutes ago   Exited (0) 20 minutes ago               sk
+da2668240b33   ubuntu:22.04   "/bin/bash"              41 minutes ago   Exited (0) 41 minutes ago               pensive_pare
+87286b7a9f1e   ubuntu         "/bin/bash"              43 minutes ago   Exited (0) 43 minutes ago               vigorous_morse
+[root@ip-172-31-8-71 ~]#
+login as: ec2-user
+ec2-user@13.233.144.3's password:
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Last login: Sat Jan 24 06:37:08 2026 from 157.50.84.92
+[ec2-user@ip-172-31-8-71 ~]$ sudo su -
+Last login: Sat Jan 24 06:37:21 UTC 2026 on pts/12
+[root@ip-172-31-8-71 ~]# docker images
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+ubuntu       latest    493218ed0f40   11 days ago   78.1MB
+ubuntu       22.04     65c77cbc27c2   2 weeks ago   77.9MB
+centos       7         eeb6ee3f44bd   4 years ago   204MB
+jenkins      2.60.3    cd14cecfdb3a   7 years ago   696MB
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                        PORTS     NAMES
+7b08518cecdf   ubuntu         "/bin/bash -c 'while…"   20 minutes ago   Exited (137) 15 minutes ago             sktech
+9ed34a70be60   ubuntu         "echo 'this is ubunt…"   36 minutes ago   Exited (0) 36 minutes ago               sk
+da2668240b33   ubuntu:22.04   "/bin/bash"              56 minutes ago   Exited (0) 56 minutes ago               pensive_pare
+87286b7a9f1e   ubuntu         "/bin/bash"              58 minutes ago   Exited (0) 58 minutes ago               vigorous_morse
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker images
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+ubuntu       latest    493218ed0f40   11 days ago   78.1MB
+ubuntu       22.04     65c77cbc27c2   2 weeks ago   77.9MB
+jenkins      2.60.3    cd14cecfdb3a   7 years ago   696MB
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker ps  -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED             STATUS                         PORTS     NAMES
+7b08518cecdf   ubuntu         "/bin/bash -c 'while…"   24 minutes ago      Exited (137) 20 minutes ago              sktech
+9ed34a70be60   ubuntu         "echo 'this is ubunt…"   40 minutes ago      Exited (0) 40 minutes ago                sk
+da2668240b33   ubuntu:22.04   "/bin/bash"              About an hour ago   Exited (0) About an hour ago             pensive_pare
+87286b7a9f1e   ubuntu         "/bin/bash"              About an hour ago   Exited (0) About an hour ago             vigorous_morse
+[root@ip-172-31-8-71 ~]# docker rm $(docker ps -aq)
+7b08518cecdf
+9ed34a70be60
+da2668240b33
+87286b7a9f1e
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker images
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+ubuntu       latest    493218ed0f40   11 days ago   78.1MB
+ubuntu       22.04     65c77cbc27c2   2 weeks ago   77.9MB
+jenkins      2.60.3    cd14cecfdb3a   7 years ago   696MB
+[root@ip-172-31-8-71 ~]# docker rmi ^C
+[root@ip-172-31-8-71 ~]# docker rmi 493218ed0f40
+Untagged: ubuntu:latest
+Untagged: ubuntu@sha256:cd1dba651b3080c3686ecf4e3c4220f026b521fb76978881737d24f200828b2b
+Deleted: sha256:493218ed0f404132311952996fea8ce85e50c49f5a717f26f25c52a25fcb2e56
+Deleted: sha256:123a078714d5ea9382d4d9f550753aefce8b34ec5ae11ae8273038d3bcbb943f
+[root@ip-172-31-8-71 ~]# docker rmi 65c77cbc27c2
+Untagged: ubuntu:22.04
+Untagged: ubuntu@sha256:c7eb020043d8fc2ae0793fb35a37bff1cf33f156d4d4b12ccc7f3ef8706c38b1
+Deleted: sha256:65c77cbc27c2640de4c99ed5cfe6b689b192f81745a36032b50e2407b073ff22
+Deleted: sha256:fbb9bbbaf4d2b027acd15252897d5043386eea7121e0e0433e697714bb14beac
+[root@ip-172-31-8-71 ~]# docker images
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+jenkins      2.60.3    cd14cecfdb3a   7 years ago   696MB
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker rmi cd14cecfdb3a
+Untagged: jenkins:2.60.3
+Untagged: jenkins@sha256:eeb4850eb65f2d92500e421b430ed1ec58a7ac909e91f518926e02473904f668
+Deleted: sha256:cd14cecfdb3a657ba7d05bea026e7ac8b9abafc6e5c66253ab327c7211fa6281
+Deleted: sha256:9047d4817dd4203ae4d456888aa5355bc526d274713d6f168359ba61b85b6c00
+Deleted: sha256:b6eeb6c0e550e93a8b6293a35b2a68931a2af1d21cf8fe8c53bd412359433fdc
+Deleted: sha256:54a9d685504efad152c1032f37f76ee95bae30607f68bd0ff48a095ebec5d820
+Deleted: sha256:0b5e1c633ad7fa60f5185ff00ccbff9af3608ba336dc7c01868f9cd0dd8a7137
+Deleted: sha256:0373335894092868f06432433f14881bd6f09d851931d6e5090601a64e0466f3
+Deleted: sha256:b4e8f84d7b87e7994e49a190bc35871b23f76d9cab573308fa1ae7401c50dcc6
+Deleted: sha256:cde912e85b12d50e9e4d056ad3c8cb35853c60291dbe4b319dcd80bcd2ef243c
+Deleted: sha256:8062b94ccb384de40b6777515f21b895be64218c5296bac3ee6db2ed4c5db9fe
+Deleted: sha256:a3411e0c109af31befac78bcbd2aba26f893717f645df8d4828bf29772417bc0
+Deleted: sha256:fb1cc4fe4174cb86f9614cf9ee4c6cecad4c7f0c04ca52c95fd1a7d0d79471e8
+Deleted: sha256:1fe73f13106502d5c58cc444a71738c518b341fd667fc26058f3e473a3cc559f
+Deleted: sha256:d3898f75e7b8a2a7e45bfdd351a00c4ad95b743861860635d702378fd073771d
+Deleted: sha256:46ddeaf1e1efd81fd6cad11c44af4e4ba71cbab32b75f60f8647f025a8874315
+Deleted: sha256:4e9ac8670c1ea60c504c1dc22e38a177afd782a48e17e81e06ecf60a1c8f4ef0
+Deleted: sha256:76dc20911db5ba40907269c70aa4ef7caf207ea4aa23818b8db2ff83ba74e1e4
+Deleted: sha256:b4ff564f2a75c2bc85c8eda2928ec73b13809416658f949d2b55fa24448c08b1
+Deleted: sha256:2d9c829ae3f7ff3e148e5c7c3a1cf378b0f90b79035e2fe9a8d78c63ccde4c89
+Deleted: sha256:b1ae7168c6f3e061aa3943740ec3ceaf8e582dc65feab31d2b56d464a5062d59
+Deleted: sha256:4a495dbc04bd205c728297a08cf203988e91caeafe4b21fcad94c893a53d96dc
+Deleted: sha256:3b10514a95bec77489a57d6e2fbfddb7ddfdb643907470ce5de0f1b05c603706
+[root@ip-172-31-8-71 ~]# docker run -d --name sktech jenkins:2.60.3
+Unable to find image 'jenkins:2.60.3' locally
+2.60.3: Pulling from library/jenkins
+55cbf04beb70: Pull complete
+1607093a898c: Pull complete
+9a8ea045c926: Pull complete
+d4eee24d4dac: Pull complete
+c58988e753d7: Pull complete
+794a04897db9: Pull complete
+70fcfa476f73: Pull complete
+0539c80a02be: Pull complete
+54fefc6dcf80: Pull complete
+911bc90e47a8: Pull complete
+38430d93efed: Pull complete
+7e46ccda148a: Pull complete
+c0cbcb5ac747: Pull complete
+35ade7a86a8e: Pull complete
+aa433a6a56b1: Pull complete
+841c1dd38d62: Pull complete
+b865dcb08714: Pull complete
+5a3779030005: Pull complete
+12b47c68955c: Pull complete
+1322ea3e7bfd: Pull complete
+Digest: sha256:eeb4850eb65f2d92500e421b430ed1ec58a7ac909e91f518926e02473904f668
+Status: Downloaded newer image for jenkins:2.60.3
+e9f3437fdd5761adba8184cfda53b630e8564150c067dfed98e5c6d88eb6d931
+[root@ip-172-31-8-71 ~]#
+
+
+
+----------------------------------------------------------------------------------------
+
+login as: ec2-user
+ec2-user@13.233.144.3's password:
+
+A newer release of "Amazon Linux" is available.
+  Version 2023.10.20260120:
+  Version 2023.10.20260120:
+Run "/usr/bin/dnf check-release-update" for full release and version update info
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Last login: Sat Jan 24 16:28:40 2026 from 157.50.84.1
+[ec2-user@ip-172-31-8-71 ~]$ sudo su -
+Last login: Sat Jan 24 16:28:45 UTC 2026 on pts/1
+Last failed login: Sat Jan 24 16:36:46 UTC 2026 from 157.50.84.1 on ssh:notty
+There were 2 failed login attempts since the last successful login.
+[root@ip-172-31-8-71 ~]# docker images
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+jenkins      2.60.3    cd14cecfdb3a   7 years ago   696MB
+[root@ip-172-31-8-71 ~]# docker rm cd14cecfdb3a
+Error response from daemon: No such container: cd14cecfdb3a
+[root@ip-172-31-8-71 ~]# docker rm sktechjn
+Error response from daemon: cannot remove container "/sktechjn": container is running: stop the container before removing or force remove
+[root@ip-172-31-8-71 ~]# docker stop sktechjn
+sktechjn
+[root@ip-172-31-8-71 ~]# docker rm sktechjn
+sktechjn
+[root@ip-172-31-8-71 ~]# docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]# [root@ip-172-31-8-71 ~]#
+-bash: [root@ip-172-31-8-71: command not found
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]#
+[root@ip-172-31-8-71 ~]# docker run -d --name sktechjn -p 8080:8080 jenkins:2.60.3
+dbdda7321e5c64e89f4a09f1cd06b1e167b53dea7679f49e63428b1d38cfe1b4
+[root@ip-172-31-8-71 ~]# docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                                                  NAMES
+dbdda7321e5c   jenkins:2.60.3   "/bin/tini -- /usr/l…"   8 seconds ago   Up 6 seconds   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 50000/tcp   sktechjn
+[root@ip-172-31-8-71 ~]#
+
+
+
+
+2. Image Management:
+
+		docker file --> docker image --> docker container
+		
+		docker HUB = public registry
+			
+		Local Registry
+		
+		in real time we are not going toshare our custom  images for
+		that we want to create one private registry 
+		
+		private registry (Artifact repos - Nexus/JFrog Tools)
+		
+		#images --- pre-defined images
+			   --- custom Image
+				
+How to write the DockerFile ?
+
+requirements: 
+1. create a ubuntu Container
+2. update the system
+3.must be having oracleid
+/opt/sktech-world
+update the system
+
+----------------------------------------------------
+Docker Instructions: 
+
+key-value
+
+NOte:all keys are in capital letters
+
+
+
+in vs code: 
+
+FROM ImageName
+MAINTAINER kumar03.rkvalley@gmail.com
+RUN sudo apt update
+RUN useradd oracleid
+RUN mkdir -p /opt/sktech-world
+
+how to build the image ? 
+#docker build .
+#docker build -t ImageName .
+
+create the container for that image ?
+
+docker run -d --it --name sktech skimg <imag> /bin/bash
+
+
+#customized Images ?
+---------------------
+		1.predefined image/base Image
+		2.pre-requirements
+		3.war-build
+		4.Install app server (tomcat/Jboss)
+		
+cmd v/s entry level point
+
+docker Pull
+docker push
+docker --version
+local & public & private registry
+
+
+
+
+artifacted repo's --- maven hosted
+					docker 
+					
+					
+					how to create private registry 
+				nexus tool	
+				
