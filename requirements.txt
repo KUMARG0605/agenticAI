@@ -2,11 +2,11 @@ ipykernel
 langchain
 python-dotenv
 pydantic
-
+sentence_transformers
 pypdf
 # WebBaseLoader
 beautifulsoup4 
-requests 
+requests
 lxml
 arxiv
 pymupdf
@@ -16,3 +16,7 @@ langchain-core
 langchain-text-splitters
 langchain-openai
 chromadb
+faiss-cpu
+langchain_chroma
+langchain_community
+streamlit
